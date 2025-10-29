@@ -48,12 +48,6 @@ npm audit fix --force
 npm run dev
 ```
 
-To get started with Corbet Culture Brew, follow these steps:
-1. **Setup**: Clone the repository and navigate to the project root
-2. **Environment**: Install the required dependencies with `npm install` or `yarn install`
-3. **Build**: Run `npm run build` or `yarn build` to create a production-ready build
-4. **Deploy**: Deploy the built application to your preferred hosting platform
-
 ## 🧪 Testing Instructions
 To run the automated tests, follow these steps:
 1. **Setup**: Install the required testing dependencies with `npm install` or `yarn install`
@@ -67,7 +61,7 @@ To run the automated tests, follow these steps:
 ### ☕ Menu
 <img width="1917" height="830" alt="Menu" src="https://github.com/user-attachments/assets/19632347-5de6-4490-9dee-58e477a86dbb" />
 
-🧾 About
+### 🧾 About
 <img width="1913" height="898" alt="About" src="https://github.com/user-attachments/assets/43aa5338-cce9-45d1-8806-6b92bffaf51e" />
 
 ### 💬 Testimonials
@@ -82,11 +76,30 @@ To run the automated tests, follow these steps:
 ### 🧭 Footer
 <img width="1918" height="462" alt="Footer" src="https://github.com/user-attachments/assets/097093c3-0337-4eff-a103-581e83caba11" />
 
+---
+
 ## 📦 API Reference
 For more information on the Supabase API, please refer to the [official Supabase documentation](https://supabase.io/docs).
 
-## 👤 Author
-Corbet Culture Brew is maintained by [Lovable](https://github.com/lovable).
+---
 
 ## 📝 License
 Corbet Culture Brew is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+
+---
+
+## 👨‍💻 Author
+
+### Mohit Dabral
+Cybersecurity & Linux Enthusiast | MERN Stack Learner  
+Corbet Culture Brew is maintained by [Lovable](https://github.com/lovable).
+
+---
+
+## Contact
+
+📧 Email: dabralmohit78@gmail.com  
+🌐 GitHub: Dabral2005
+
+
