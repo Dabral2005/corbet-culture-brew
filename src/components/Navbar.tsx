@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X, Shield } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { isAdmin } = useAdmin();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,6 +62,17 @@ const Navbar = () => {
                 {link.label}
               </button>
             ))}
+            {isAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/admin")}
+                className="flex items-center gap-2"
+              >
+                <Shield className="h-4 w-4" />
+                Admin
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -106,6 +121,20 @@ const Navbar = () => {
                   {link.label}
                 </button>
               ))}
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigate("/admin");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin Dashboard
+                </Button>
+              )}
             </div>
           </div>
         )}
