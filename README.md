@@ -78,17 +78,6 @@ To run the automated tests, follow these steps:
 
 ---
 
-## 📦 API Reference
-For more information on the Supabase API, please refer to the [official Supabase documentation](https://supabase.io/docs).
-
----
-
-## 📝 License
-Corbet Culture Brew is licensed under the [MIT License](https://opensource.org/licenses/MIT).
-
-
----
-
 ## 👨‍💻 Author
 
 ### Mohit Dabral
