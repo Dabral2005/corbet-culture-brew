@@ -40,7 +40,9 @@ const imageMap: Record<string, string> = {
 const Menu = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [displayedItems, setDisplayedItems] = useState<MenuItem[]>([]);
-  const [showAll, setShowAll] = useState(false);
+  const [itemsPerPage] = useState(8);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredCount, setFilteredCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVeg, setFilterVeg] = useState(false);
   const [filterSpicy, setFilterSpicy] = useState(false);
@@ -50,8 +52,12 @@ const Menu = () => {
   }, []);
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterVeg, filterSpicy]);
+
+  useEffect(() => {
     filterAndDisplayItems();
-  }, [menuItems, showAll, searchQuery, filterVeg, filterSpicy]);
+  }, [menuItems, currentPage, searchQuery, filterVeg, filterSpicy]);
 
   const fetchMenuItems = async () => {
     const { data, error } = await supabase.from("menu").select("*");
@@ -70,7 +76,9 @@ const Menu = () => {
       return matchesSearch && matchesVeg && matchesSpicy;
     });
 
-    setDisplayedItems(showAll ? filtered : filtered.slice(0, 8));
+    const itemsToShow = currentPage * itemsPerPage;
+    setDisplayedItems(filtered.slice(0, itemsToShow));
+    setFilteredCount(filtered.length);
   };
 
   return (
@@ -161,10 +169,14 @@ const Menu = () => {
           ))}
         </div>
 
-        {!showAll && menuItems.length > 8 && (
+        {displayedItems.length < filteredCount && (
           <div className="text-center">
-            <Button size="lg" onClick={() => setShowAll(true)}>
-              Show More Items
+            <Button 
+              size="lg" 
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="min-w-[200px]"
+            >
+              Load More Items ({filteredCount - displayedItems.length} remaining)
             </Button>
           </div>
         )}
