@@ -5,14 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Leaf, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import cappuccinoImg from "@/assets/cappuccino.jpg";
-import chaiImg from "@/assets/masala-chai.jpg";
-import paneerImg from "@/assets/paneer-butter-masala.jpg";
-import dosaImg from "@/assets/masala-dosa.jpg";
-import samosaImg from "@/assets/samosa.jpg";
-import gulabJamunImg from "@/assets/gulab-jamun.jpg";
-import biryaniImg from "@/assets/biryani.jpg";
-import smoothieImg from "@/assets/smoothie.jpg";
 
 interface MenuItem {
   id: string;
@@ -24,18 +16,6 @@ interface MenuItem {
   is_veg: boolean;
   is_spicy: boolean;
 }
-
-const imageMap: Record<string, string> = {
-  "Classic Cappuccino": cappuccinoImg,
-  "Masala Chai": chaiImg,
-  "Paneer Butter Masala": paneerImg,
-  "Masala Dosa": dosaImg,
-  "Samosa (2 pcs)": samosaImg,
-  "Gulab Jamun": gulabJamunImg,
-  "Veg Biryani": biryaniImg,
-  "Green Smoothie": smoothieImg,
-  "Berry Blast Smoothie": smoothieImg,
-};
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -81,6 +61,15 @@ const Menu = () => {
     setFilteredCount(filtered.length);
   };
 
+  // Group items by category
+  const groupedItems = displayedItems.reduce((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = [];
+    }
+    acc[item.category].push(item);
+    return acc;
+  }, {} as Record<string, MenuItem[]>);
+
   return (
     <section id="menu" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -125,47 +114,48 @@ const Menu = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {displayedItems.map((item, index) => (
-            <Card
-              key={item.id}
-              className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 animate-fade-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="aspect-square overflow-hidden">
-                <img
-                  src={imageMap[item.name] || item.image_url}
-                  alt={item.name}
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                />
+        <div className="space-y-12 mb-8">
+          {Object.entries(groupedItems).map(([category, items]) => (
+            <div key={category} className="animate-fade-in">
+              <h3 className="text-3xl font-bold mb-6 text-foreground border-b-2 border-primary pb-2">
+                {category}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {items.map((item) => (
+                  <Card
+                    key={item.id}
+                    className="hover:shadow-lg transition-all duration-300 hover:scale-105"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-semibold text-lg flex-1">{item.name}</h4>
+                        <div className="flex gap-1 ml-2">
+                          {item.is_veg && (
+                            <Badge variant="outline" className="bg-success/10">
+                              <Leaf className="h-3 w-3" />
+                            </Badge>
+                          )}
+                          {item.is_spicy && (
+                            <Badge variant="outline" className="bg-destructive/10">
+                              <Flame className="h-3 w-3" />
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {item.description}
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-2xl font-bold text-primary">
+                          ₹{item.price}
+                        </span>
+                        <Button size="sm">Order Now</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold text-lg">{item.name}</h3>
-                  <div className="flex gap-1">
-                    {item.is_veg && (
-                      <Badge variant="outline" className="bg-success/10">
-                        <Leaf className="h-3 w-3" />
-                      </Badge>
-                    )}
-                    {item.is_spicy && (
-                      <Badge variant="outline" className="bg-destructive/10">
-                        <Flame className="h-3 w-3" />
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {item.description}
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="text-xl font-bold text-primary">
-                    ₹{item.price}
-                  </span>
-                  <Button size="sm">Order Now</Button>
-                </div>
-              </CardContent>
-            </Card>
+            </div>
           ))}
         </div>
 
