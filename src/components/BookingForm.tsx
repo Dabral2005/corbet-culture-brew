@@ -40,6 +40,20 @@ const BookingForm = ({ onSuccess }: BookingFormProps) => {
 
     try {
       const validatedData = bookingSchema.parse(formData);
+      const [bookingHour, bookingMinute] = validatedData.time.split(":").map(Number);
+      const bookingTimeValue = bookingHour * 60 + bookingMinute;
+      const openingTimeValue = 10 * 60; // 10:00 AM
+      const closingTimeValue = 23 * 60 + 30; // 11:30 PM
+
+      if (bookingTimeValue < openingTimeValue || bookingTimeValue > closingTimeValue) {
+        toast({
+          title: "Outside Opening Hours",
+          description: "Please book between 10:00 AM and 11:30 PM.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
 
       const { error } = await supabase.from("bookings").insert([{
         name: validatedData.name,
@@ -49,14 +63,18 @@ const BookingForm = ({ onSuccess }: BookingFormProps) => {
         time: validatedData.time,
         guests: validatedData.guests,
         message: validatedData.message || null,
+        notification_email: "mohitdabral780@gmail.com" // Added for record keeping
       }]);
 
       if (error) throw error;
 
       toast({
         title: "Booking Received!",
-        description: "We'll confirm your reservation shortly.",
+        description: "We'll confirm your reservation via mohitdabral780@gmail.com shortly.",
       });
+
+      // Simulation of email notification
+      console.log("Notifying mohitdabral780@gmail.com about new booking...");
 
       setFormData({
         name: "",
