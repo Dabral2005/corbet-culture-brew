@@ -3,16 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Leaf, Flame, Utensils } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Leaf, Flame, Utensils, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { menuData, MenuItem } from "@/data/menuData";
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(menuData);
-  const [displayedItems, setDisplayedItems] = useState<MenuItem[]>([]);
-  const [itemsPerPage] = useState(12);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filteredCount, setFilteredCount] = useState(0);
+  const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVeg, setFilterVeg] = useState(false);
   const [filterSpicy, setFilterSpicy] = useState(false);
@@ -21,51 +19,29 @@ const Menu = () => {
     fetchMenuItems();
   }, []);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, filterVeg, filterSpicy]);
-
-  useEffect(() => {
-    filterAndDisplayItems();
-  }, [menuItems, currentPage, searchQuery, filterVeg, filterSpicy]);
-
   const fetchMenuItems = async () => {
     const { data, error } = await supabase.from("menu").select("*");
     if (data && !error && data.length > 0) {
-      // Merge unique items from Supabase or replace if desired. 
-      // For now, we prioritize the local menuData but allow DB additions.
       const dbIds = new Set(data.map(i => i.id));
       const combined = [...menuData, ...data.filter(i => !dbIds.has(i.id))];
       setMenuItems(combined);
     }
   };
 
-  const filterAndDisplayItems = () => {
-    let filtered = menuItems.filter((item) => {
-      const matchesSearch = item.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) || 
-        item.category.toLowerCase().includes(searchQuery.toLowerCase());
+  const categories = ["All", ...Array.from(new Set(menuData.map(item => item.category)))];
+
+  const getFilteredItems = () => {
+    return menuItems.filter((item) => {
+      const matchesCategory = activeCategory === "All" || item.category === activeCategory;
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           item.category.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesVeg = !filterVeg || item.is_veg;
       const matchesSpicy = !filterSpicy || item.is_spicy;
-      return matchesSearch && matchesVeg && matchesSpicy;
+      return matchesCategory && matchesSearch && matchesVeg && matchesSpicy;
     });
-
-    const itemsToShow = currentPage * itemsPerPage;
-    setDisplayedItems(filtered.slice(0, itemsToShow));
-    setFilteredCount(filtered.length);
   };
 
-  // Group items by category in the order they appear in menuData
-  const categories = Array.from(new Set(menuData.map(item => item.category)));
-  
-  const groupedItems = categories.reduce((acc, category) => {
-    const itemsInCategory = displayedItems.filter(item => item.category === category);
-    if (itemsInCategory.length > 0) {
-      acc[category] = itemsInCategory;
-    }
-    return acc;
-  }, {} as Record<string, MenuItem[]>);
+  const filteredItems = getFilteredItems();
 
   return (
     <section id="menu" className="py-24 bg-muted/30">
@@ -82,117 +58,126 @@ const Menu = () => {
           </p>
         </div>
 
-        <div className="mb-12 space-y-6 max-w-4xl mx-auto">
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-accent/20 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative bg-background rounded-lg shadow-sm border border-border">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-              <Input
-                type="text"
-                placeholder="Search by dish or category..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 py-6 text-lg border-none focus-visible:ring-1 focus-visible:ring-primary/30"
-              />
+        <div className="max-w-5xl mx-auto mb-12 space-y-8">
+          {/* Search and Filters */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-accent/20 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+              <div className="relative bg-background rounded-lg shadow-sm border border-border overflow-hidden">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                <Input
+                  type="text"
+                  placeholder="Search by dish or category..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 py-6 text-lg border-none focus-visible:ring-1 focus-visible:ring-primary/30"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4 items-center justify-end">
+              <Button
+                variant={filterVeg ? "default" : "outline"}
+                onClick={() => setFilterVeg(!filterVeg)}
+                className={`gap-2 rounded-full px-6 transition-all duration-300 ${filterVeg ? 'bg-success hover:bg-success/90 border-success shadow-md shadow-success/20' : 'hover:border-success/50 hover:text-success'}`}
+              >
+                <Leaf className={`h-4 w-4 ${filterVeg ? 'fill-white' : ''}`} />
+                Vegetarian
+              </Button>
+              <Button
+                variant={filterSpicy ? "default" : "outline"}
+                onClick={() => setFilterSpicy(!filterSpicy)}
+                className={`gap-2 rounded-full px-6 transition-all duration-300 ${filterSpicy ? 'bg-destructive hover:bg-destructive/90 border-destructive shadow-md shadow-destructive/20' : 'hover:border-destructive/50 hover:text-destructive'}`}
+              >
+                <Flame className={`h-4 w-4 ${filterSpicy ? 'fill-white' : ''}`} />
+                Spicy
+              </Button>
             </div>
           </div>
 
-          <div className="flex justify-center gap-4 flex-wrap">
-            <Button
-              variant={filterVeg ? "default" : "outline"}
-              onClick={() => setFilterVeg(!filterVeg)}
-              className={`gap-2 rounded-full px-6 transition-all duration-300 ${filterVeg ? 'bg-success hover:bg-success/90 border-success shadow-md shadow-success/20' : 'hover:border-success/50 hover:text-success'}`}
-            >
-              <Leaf className={`h-4 w-4 ${filterVeg ? 'fill-white' : ''}`} />
-              Vegetarian
-            </Button>
-            <Button
-              variant={filterSpicy ? "default" : "outline"}
-              onClick={() => setFilterSpicy(!filterSpicy)}
-              className={`gap-2 rounded-full px-6 transition-all duration-300 ${filterSpicy ? 'bg-destructive hover:bg-destructive/90 border-destructive shadow-md shadow-destructive/20' : 'hover:border-destructive/50 hover:text-destructive'}`}
-            >
-              <Flame className={`h-4 w-4 ${filterSpicy ? 'fill-white' : ''}`} />
-              Spicy Selection
-            </Button>
-          </div>
-        </div>
-
-        <div className="space-y-16 mb-12">
-          {Object.entries(groupedItems).map(([category, items]) => (
-            <div key={category} className="animate-fade-in group">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="h-10 w-1 bg-primary rounded-full group-hover:h-12 transition-all duration-300"></div>
-                <h3 className="text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
-                  {category}
-                  <span className="text-sm font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
-                    {items.length} Items
-                  </span>
-                </h3>
-                <div className="flex-1 h-[1px] bg-border group-hover:bg-primary/20 transition-colors"></div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {items.map((item) => (
-                  <Card
-                    key={item.id}
-                    className="overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 group/card ring-1 ring-border/50"
+          {/* Category Tabs */}
+          <Tabs defaultValue="All" onValueChange={setActiveCategory} className="w-full">
+            <div className="relative">
+              <TabsList className="w-full h-auto flex flex-wrap justify-center p-2 bg-background/50 backdrop-blur-sm border border-border border-b-2 gap-2 mb-8 sticky top-20 z-10 shadow-sm">
+                {categories.map((category) => (
+                  <TabsTrigger
+                    key={category}
+                    value={category}
+                    className="px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg hover:bg-muted hover:scale-105 active:scale-95"
                   >
-                    <CardContent className="p-0">
-                      <div className="p-6">
-                        <div className="flex justify-between items-start mb-3">
-                          <h4 className="font-bold text-xl group-hover/card:text-primary transition-colors leading-tight">
-                            {item.name}
-                          </h4>
-                          <div className="flex gap-1.5 ml-2">
-                            {item.is_veg && (
-                              <Badge variant="outline" className="bg-success/5 text-success border-success/20 p-1 rounded-full" title="Vegetarian">
-                                <Leaf className="h-3.5 w-3.5 fill-success/20" />
-                              </Badge>
-                            )}
-                            {item.is_spicy && (
-                              <Badge variant="outline" className="bg-destructive/5 text-destructive border-destructive/20 p-1 rounded-full" title="Spicy">
-                                <Flame className="h-3.5 w-3.5 fill-destructive/20" />
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-6 min-h-[2.5rem]">
-                          {item.description || "A chef's special preparation using the finest seasonal ingredients."}
-                        </p>
-                        
-                        <div className="flex justify-between items-center mt-auto border-t border-border/50 pt-4">
-                          <div className="flex flex-col">
-                            <span className="text-xs text-muted-foreground uppercase font-semibold">Price</span>
-                            <span className="text-2xl font-bold text-primary">
-                              ₹{item.price}
-                            </span>
-                          </div>
-                          <Button size="sm" className="rounded-full px-5 group/btn">
-                            Order 
-                            <Utensils className="ml-2 h-4 w-4 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    {category}
+                  </TabsTrigger>
                 ))}
-              </div>
+              </TabsList>
             </div>
-          ))}
-        </div>
 
-        {displayedItems.length < filteredCount && (
-          <div className="text-center mt-12">
-            <Button 
-              size="lg" 
-              onClick={() => setCurrentPage(prev => prev + 1)}
-              className="min-w-[240px] rounded-full shadow-lg hover:shadow-primary/20 transition-all gap-2"
-            >
-              Load More Delicacies ({filteredCount - displayedItems.length} remaining)
-            </Button>
-          </div>
-        )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-h-[400px]">
+              {filteredItems.map((item) => (
+                <Card
+                  key={item.id}
+                  className="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group/card ring-1 ring-border/50 animate-fade-in"
+                >
+                  <CardContent className="p-0">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                      {item.image_url ? (
+                        <img 
+                          src={item.image_url} 
+                          alt={item.name} 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-primary/20">
+                          <Utensils className="h-12 w-12" />
+                        </div>
+                      )}
+                      <div className="absolute top-4 right-4 flex flex-col gap-2">
+                        {item.is_veg && (
+                          <Badge className="bg-success text-white border-none shadow-sm px-2">Veg</Badge>
+                        )}
+                        {item.is_spicy && (
+                          <Badge className="bg-destructive text-white border-none shadow-sm px-2">Spicy</Badge>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="p-6">
+                      <div className="mb-2">
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-primary/60">{item.category}</span>
+                        <h4 className="font-bold text-xl group-hover/card:text-primary transition-colors leading-tight">
+                          {item.name}
+                        </h4>
+                      </div>
+                      
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-6 min-h-[2.5rem]">
+                        {item.description || "A chef's special preparation using the finest seasonal ingredients."}
+                      </p>
+                      
+                      <div className="flex justify-between items-center mt-auto border-t border-border/50 pt-4">
+                        <span className="text-2xl font-bold text-primary">₹{item.price}</span>
+                        <Button size="sm" className="rounded-full px-5 group/btn overflow-hidden relative">
+                          <span className="relative z-10">Add to cart</span>
+                          <div className="absolute inset-0 bg-accent translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {filteredItems.length === 0 && (
+                <div className="col-span-full py-20 text-center flex flex-col items-center gap-4">
+                  <div className="p-4 bg-muted rounded-full">
+                    <Search className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <h5 className="text-xl font-bold">No items found</h5>
+                    <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Tabs>
+        </div>
       </div>
     </section>
   );
