@@ -104,7 +104,7 @@ const Footer = () => {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-accent transition-colors"
+                className="transition-all duration-300 hover:text-[#1877F2] hover:scale-110"
                 aria-label="Facebook"
               >
                 <Facebook className="w-6 h-6" />
@@ -113,7 +113,7 @@ const Footer = () => {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-accent transition-colors"
+                className="transition-all duration-300 hover:text-[#E4405F] hover:scale-110"
                 aria-label="Instagram"
               >
                 <Instagram className="w-6 h-6" />
@@ -122,7 +122,7 @@ const Footer = () => {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-accent transition-colors"
+                className="transition-all duration-300 hover:text-[#1DA1F2] hover:scale-110"
                 aria-label="Twitter"
               >
                 <Twitter className="w-6 h-6" />
