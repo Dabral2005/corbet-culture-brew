@@ -20,16 +20,6 @@ const App = () => (
       <Toaster />
       <Sonner />
 
-      <header style={{ padding: "10px" }}>
-        <SignedOut>
-          <SignInButton />
-          <SignUpButton />
-        </SignedOut>
-
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
-      </header>
 
       <BrowserRouter>
         <Routes>
