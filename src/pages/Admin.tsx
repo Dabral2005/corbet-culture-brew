@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -50,13 +50,7 @@ const Admin = () => {
     }
   }, [isAdmin, authLoading, navigate]);
 
-  useEffect(() => {
-    if (isAdmin) {
-      fetchData();
-    }
-  }, [isAdmin]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [bookingsRes, messagesRes, subscribersRes] = await Promise.all([
@@ -72,7 +66,8 @@ const Admin = () => {
       setBookings(bookingsRes.data || []);
       setMessages(messagesRes.data || []);
       setSubscribers(subscribersRes.data || []);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       toast({
         title: "Error",
         description: error.message || "Failed to fetch data",
@@ -81,7 +76,13 @@ const Admin = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchData();
+    }
+  }, [isAdmin, fetchData]);
 
   const handleDelete = async (table: "bookings" | "contact_messages" | "subscribers", id: string) => {
     try {
@@ -93,7 +94,8 @@ const Admin = () => {
         description: "Item deleted successfully",
       });
       fetchData();
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       toast({
         title: "Error",
         description: error.message || "Failed to delete item",
