@@ -63,7 +63,6 @@ const BookingForm = ({ onSuccess }: BookingFormProps) => {
         time: validatedData.time,
         guests: validatedData.guests,
         message: validatedData.message || null,
-        notification_email: "mohitdabral780@gmail.com" // Added for record keeping
       }]);
 
       if (error) throw error;
