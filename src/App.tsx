@@ -10,8 +10,6 @@ import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -20,20 +18,10 @@ const App = () => (
       <Toaster />
       <Sonner />
 
-
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
-
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            } 
-          />
-
+          <Route path="/" element={<Index />} />
           <Route 
             path="/admin" 
             element={
@@ -42,7 +30,6 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
-
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
