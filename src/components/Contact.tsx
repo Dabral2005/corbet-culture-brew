@@ -8,6 +8,7 @@ import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { Badge } from "@/components/ui/badge";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -69,145 +70,119 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-muted/30">
+    <section id="contact" className="py-24 bg-muted/30 overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
-            Get in Touch
+        <div className="text-center mb-16 animate-fade-in">
+          <Badge variant="outline" className="mb-4 px-4 py-1 text-primary border-primary/20 bg-primary/5 uppercase tracking-widest text-xs font-bold">
+            Stay Connected
+          </Badge>
+          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-foreground tracking-tight">
+            Get in <span className="text-primary italic">Touch</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Visit us or reach out for reservations and inquiries
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Whether you have a question about reservations or just want to say hi, we'd love to hear from you.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          <div className="space-y-6">
-            <Card className="animate-fade-in">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <MapPin className="w-6 h-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Address</h3>
-                    <p className="text-muted-foreground">
-                      Sidhbali Marg, Kotdwara<br />
-                      Uttarakhand, PIN 246149
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <Phone className="w-6 h-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Phone</h3>
-                    <p className="text-muted-foreground">+91 84456 40120</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <Mail className="w-6 h-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Email</h3>
-                    <p className="text-muted-foreground">
-                      dabralmohit78@gmail.com
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <Clock className="w-6 h-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Hours</h3>
-                    <p className="text-muted-foreground">
-                      Mon - Sun: 8:00 AM - 10:00 PM
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
+          <div className="lg:col-span-1 space-y-6">
+            <div className="space-y-4">
+             {[
+                 { icon: MapPin, title: "Address", content: "Buddha Park, Giwai Srot, Kotdwar, pauri Garhwal, Uttarakhand 246149" },
+                 { icon: Phone, title: "Phone", content: "+91 84456 40120" },
+                 { icon: Mail, title: "Email", content: "dabralmohit78@gmail.com" },
+                 { icon: Clock, title: "Hours", content: "Mon - Sun: 8:00 AM - 10:00 PM" }
+               ].map((item, idx) => (
+                <Card key={idx} className="animate-fade-in border-none shadow-sm hover:shadow-md transition-shadow cursor-default group" style={{ animationDelay: `${idx * 0.1}s` }}>
+                  <CardContent className="p-6 flex items-start gap-4">
+                    <div className="p-3 bg-primary/5 rounded-xl group-hover:bg-primary/10 transition-colors">
+                      <item.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-1">{item.title}</h3>
+                      <p className="text-foreground font-medium">{item.content}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
             <Button
               onClick={openWhatsApp}
-              className="w-full bg-success hover:bg-success/90 gap-2"
-              size="lg"
+              className="w-full bg-success hover:bg-success/90 gap-2 h-14 rounded-xl text-lg shadow-lg shadow-success/20 transition-all hover:scale-[1.02] active:scale-95"
             >
-              <MessageCircle className="w-5 h-5" />
+              <MessageCircle className="w-6 h-6" />
               Chat on WhatsApp
             </Button>
           </div>
 
-          <Card className="animate-fade-in">
-            <CardContent className="p-6">
-              <h3 className="text-2xl font-semibold mb-6">Send us a Message</h3>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="contact-name">Name</Label>
-                  <Input
-                    id="contact-name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    required
-                    maxLength={100}
-                  />
+          <Card className="lg:col-span-2 animate-fade-in border-none shadow-xl overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50"></div>
+            <CardContent className="p-8 md:p-12 relative">
+              <h3 className="text-3xl font-bold mb-8">Send us a Message</h3>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-name" className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1">Your Name</Label>
+                    <Input
+                      id="contact-name"
+                      placeholder="John Doe"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="h-12 bg-background border-border/50 focus:border-primary transition-all rounded-xl"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-email" className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1">Email Address</Label>
+                    <Input
+                      id="contact-email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="h-12 bg-background border-border/50 focus:border-primary transition-all rounded-xl"
+                      required
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="contact-email">Email</Label>
-                  <Input
-                    id="contact-email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    required
-                    maxLength={255}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="contact-message">Message</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="contact-message" className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1">Message</Label>
                   <Textarea
                     id="contact-message"
+                    placeholder="Tell us what's on your mind..."
                     value={formData.message}
-                    onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className="bg-background border-border/50 focus:border-primary transition-all rounded-xl resize-none"
                     required
-                    maxLength={1000}
-                    rows={5}
+                    rows={6}
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Sending..." : "Send Message"}
+                <Button type="submit" className="w-full h-14 rounded-xl text-lg font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all" disabled={loading}>
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Sending...
+                    </span>
+                  ) : "Send Message"}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </div>
 
-        <div className="mt-12 animate-fade-in">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3458.123456789!2d78.789012!3d29.876543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjnCsDUyJzM1LjYiTiA3OMKwNDcnMjAuNCJF!5e0!3m2!1sen!2sin!4v1234567890"
-            width="100%"
-            height="400"
-            style={{ border: 0, borderRadius: "0.75rem" }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Corbet Culture Café Location"
-          />
+        <div className="mt-20 animate-fade-in relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-border/50">
+           <iframe
+             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3458.123456789!2d78.293204!3d29.745809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390924a10a1a6b8b:0x3a274f1f2f7e3c30!2sBuddha%20Park%2C%20Giwai%20Srot%2C%20Kotdwar%2C%20Pauri%20Garhwal%20%2C%20Uttarakhand%20246149!5e0!3m2!1sen!2sin!4v1713897600000"
+             width="100%"
+             height="500"
+             style={{ border: 0 }}
+             allowFullScreen
+             loading="lazy"
+             referrerPolicy="no-referrer-when-downgrade"
+             title="Corbet Culture Café Location"
+             className="grayscale hover:grayscale-0 transition-all duration-1000"
+           />
         </div>
       </div>
     </section>
