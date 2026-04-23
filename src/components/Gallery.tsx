@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import cafeInteriorImg from "@/assets/cafe-interior.jpg";
-import cappuccinoImg from "@/assets/cappuccino.jpg";
-import chaiImg from "@/assets/masala-chai.jpg";
-import paneerImg from "@/assets/paneer-butter-masala.jpg";
-import dosaImg from "@/assets/masala-dosa.jpg";
+import owlMuralImg from "@/assets/gallery-owl.png";
+import deerMuralImg from "@/assets/gallery-deer.png";
+import exteriorImg from "@/assets/gallery-exterior.png";
+import foodDish1Img from "@/assets/gallery-food-1.png";
+import foodDish2Img from "@/assets/gallery-food-2.png";
 import samosaImg from "@/assets/samosa.jpg";
 import gulabJamunImg from "@/assets/gulab-jamun.jpg";
 import biryaniImg from "@/assets/biryani.jpg";
@@ -17,14 +18,14 @@ interface GalleryImage {
 }
 
 const defaultImages = [
+  { url: exteriorImg, caption: "Corbett Cultures Signature Mural" },
+  { url: owlMuralImg, caption: "Our majestic Owl Mural" },
+  { url: deerMuralImg, caption: "Beautiful Forest Deer Mural" },
+  { url: foodDish1Img, caption: "Signature Creamy Delicacy" },
+  { url: foodDish2Img, caption: "Authentic Spicy Sensation" },
   { url: cafeInteriorImg, caption: "Our cozy café interior" },
-  { url: cappuccinoImg, caption: "Fresh coffee being brewed" },
-  { url: chaiImg, caption: "Traditional masala chai" },
-  { url: paneerImg, caption: "Delicious homemade curries" },
-  { url: dosaImg, caption: "Authentic South Indian" },
-  { url: samosaImg, caption: "Golden crispy samosas" },
-  { url: gulabJamunImg, caption: "Sweet delights" },
-  { url: biryaniImg, caption: "Fragrant biryani" },
+  { url: biryaniImg, caption: "Fragrant Biryani" },
+  { url: gulabJamunImg, caption: "Sweet Delights" },
 ];
 
 const Gallery = () => {
