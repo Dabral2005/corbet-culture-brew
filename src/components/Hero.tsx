@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import BookingForm from "./BookingForm";
 import heroImage from "@/assets/hero-coffee.jpg";
+import { Utensils } from "lucide-react";
 
 const Hero = () => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -23,29 +25,33 @@ const Hero = () => {
           backgroundAttachment: "fixed",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/15" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 text-center animate-fade-in">
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 text-foreground">
-          Brewed with Love
+      <div className="relative z-10 container mx-auto px-4 text-center animate-fade-in pt-20">
+        <Badge variant="outline" className="mb-6 px-4 py-1 text-foreground border-foreground/20 bg-foreground/10 uppercase tracking-[0.3em] text-[10px] font-black backdrop-blur-md">
+          Est. 2024
+        </Badge>
+        <h1 className="text-6xl md:text-8xl font-black mb-8 text-foreground tracking-tighter drop-shadow-2xl">
+          Brewed with <span className="text-primary italic">Soul</span>
         </h1>
-        <p className="text-xl md:text-2xl mb-8 text-muted-foreground max-w-2xl mx-auto">
-          Serving premium Indian coffee and homemade delicacies in the heart of Kotdwara
+        <p className="text-xl md:text-3xl mb-12 text-foreground/90 max-w-3xl mx-auto font-medium leading-relaxed drop-shadow-lg">
+          Experience the finest Indian coffee and authentic gourmet delicacies in the heart of Kotdwara.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
           <Button
             size="lg"
             onClick={scrollToMenu}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-8 text-xl rounded-2xl shadow-2xl shadow-primary/40 transition-all hover:scale-105 active:scale-95 group font-bold"
           >
-            View Menu
+            Explore Menu
+            <Utensils className="ml-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
           </Button>
           <Button
             size="lg"
             variant="outline"
             onClick={() => setIsBookingOpen(true)}
-            className="border-2 px-8 py-6 text-lg"
+            className="border-2 border-primary-foreground/30 bg-primary-foreground/5 backdrop-blur-md text-primary-foreground px-10 py-8 text-xl rounded-2xl hover:bg-primary-foreground hover:text-primary transition-all hover:scale-105 active:scale-95 font-bold"
           >
             Book a Table
           </Button>
@@ -53,9 +59,9 @@ const Hero = () => {
       </div>
 
       <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md border-none shadow-2xl rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Reserve Your Table</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-center">Reserve Your Table</DialogTitle>
           </DialogHeader>
           <BookingForm onSuccess={() => setIsBookingOpen(false)} />
         </DialogContent>
