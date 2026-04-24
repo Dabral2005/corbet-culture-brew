@@ -90,7 +90,7 @@ const Contact = () => {
              {[
                  { icon: MapPin, title: "Address", content: "Buddha Park, Giwai Srot, Kotdwar, pauri Garhwal, Uttarakhand 246149" },
                  { icon: Phone, title: "Phone", content: "+91 84456 40120" },
-                 { icon: Mail, title: "Email", content: "dabralmohit78@gmail.com" },
+                 { icon: Mail, title: "Email", content: "mohitdabral780@gmail.com" },
                  { icon: Clock, title: "Hours", content: "Mon - Sun: 8:00 AM - 10:00 PM" }
                ].map((item, idx) => (
                 <Card key={idx} className="animate-fade-in border-none shadow-sm hover:shadow-md transition-shadow cursor-default group" style={{ animationDelay: `${idx * 0.1}s` }}>
@@ -173,14 +173,14 @@ const Contact = () => {
 
         <div className="mt-20 animate-fade-in relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-border/50">
            <iframe
-             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3458.123456789!2d78.293204!3d29.745809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390924a10a1a6b8b:0x3a274f1f2f7e3c30!2sBuddha%20Park%2C%20Giwai%20Srot%2C%20Kotdwar%2C%20Pauri%20Garhwal%20%2C%20Uttarakhand%20246149!5e0!3m2!1sen!2sin!4v1713897600000"
+             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3466.74!2d78.52380!3d29.74600!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390923d1a1f6b0e5%3A0x6bcf4e2e2e2e2e2e!2sBuddha%20Park%2C%20Giwai%20Srot%2C%20Kotdwar%2C%20Pauri%20Garhwal%2C%20Uttarakhand%20246149!5e0!3m2!1sen!2sin!4v1714000000000!5m2!1sen!2sin"
              width="100%"
              height="500"
              style={{ border: 0 }}
              allowFullScreen
              loading="lazy"
              referrerPolicy="no-referrer-when-downgrade"
-             title="Corbet Culture Café Location"
+             title="Corbet Culture Café Location — Buddha Park, Giwai Srot, Kotdwar"
              className="grayscale hover:grayscale-0 transition-all duration-1000"
            />
         </div>
