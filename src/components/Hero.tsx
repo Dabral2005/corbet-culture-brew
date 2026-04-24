@@ -18,24 +18,26 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background image — blurred & dimmed for text readability */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${heroImage})`,
           backgroundAttachment: "fixed",
+          filter: "blur(2px) brightness(0.55)",
         }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/15" />
-      </div>
+      />
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/30" />
 
       <div className="relative z-10 container mx-auto px-4 text-center animate-fade-in pt-20">
-        <Badge variant="outline" className="mb-6 px-4 py-1 text-foreground border-foreground/20 bg-foreground/10 uppercase tracking-[0.3em] text-[10px] font-black backdrop-blur-md">
+        <Badge variant="outline" className="mb-6 px-4 py-1 text-white border-white/20 bg-white/10 uppercase tracking-[0.3em] text-[10px] font-black backdrop-blur-md">
           Est. 2024
         </Badge>
-        <h1 className="text-6xl md:text-8xl font-black mb-8 text-foreground tracking-tighter drop-shadow-2xl">
+        <h1 className="text-6xl md:text-8xl font-black mb-8 text-white tracking-tighter drop-shadow-2xl">
           Brewed with <span className="text-primary italic">Soul</span>
         </h1>
-        <p className="text-xl md:text-3xl mb-12 text-foreground/90 max-w-3xl mx-auto font-medium leading-relaxed drop-shadow-lg">
+        <p className="text-xl md:text-3xl mb-12 text-white/90 max-w-3xl mx-auto font-medium leading-relaxed drop-shadow-lg">
           Experience the finest Indian coffee and authentic gourmet delicacies in the heart of Kotdwara.
         </p>
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -51,7 +53,7 @@ const Hero = () => {
             size="lg"
             variant="outline"
             onClick={() => setIsBookingOpen(true)}
-            className="border-2 border-primary-foreground/30 bg-primary-foreground/5 backdrop-blur-md text-primary-foreground px-10 py-8 text-xl rounded-2xl hover:bg-primary-foreground hover:text-primary transition-all hover:scale-105 active:scale-95 font-bold"
+            className="border-2 border-white/30 bg-white/5 backdrop-blur-md text-white px-10 py-8 text-xl rounded-2xl hover:bg-white hover:text-black transition-all hover:scale-105 active:scale-95 font-bold"
           >
             Book a Table
           </Button>
