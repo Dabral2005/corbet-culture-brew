@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Plus } from "lucide-react";
+import { useAdmin } from "@/hooks/useAdmin";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Testimonial {
   id: number;
@@ -42,15 +47,54 @@ const testimonials: Testimonial[] = [
   },
 ];
 
+const AddTestimonialForm = ({ onSuccess }: { onSuccess: (t: Testimonial) => void }) => {
+  const [name, setName] = useState("");
+  const [review, setReview] = useState("");
+  const [rating, setRating] = useState(5);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newTestimonial: Testimonial = {
+      id: Date.now(),
+      name,
+      review,
+      rating,
+      avatar: name.substring(0, 2).toUpperCase() || "U",
+    };
+    onSuccess(newTestimonial);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label>Name</Label>
+        <Input required value={name} onChange={e => setName(e.target.value)} />
+      </div>
+      <div className="space-y-2">
+        <Label>Rating (1-5)</Label>
+        <Input required type="number" min="1" max="5" value={rating} onChange={e => setRating(parseInt(e.target.value))} />
+      </div>
+      <div className="space-y-2">
+        <Label>Review</Label>
+        <Textarea required value={review} onChange={e => setReview(e.target.value)} />
+      </div>
+      <Button type="submit" className="w-full">Submit</Button>
+    </form>
+  );
+};
+
 const Testimonials = () => {
+  const [testimonialList, setTestimonialList] = useState<Testimonial[]>(testimonials);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const { user } = useAdmin();
 
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || testimonialList.length === 0) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+      setCurrentIndex((prev) => (prev + 1) % testimonialList.length);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -59,13 +103,19 @@ const Testimonials = () => {
   const goToPrevious = () => {
     setIsAutoPlaying(false);
     setCurrentIndex((prev) =>
-      prev === 0 ? testimonials.length - 1 : prev - 1
+      prev === 0 ? testimonialList.length - 1 : prev - 1
     );
   };
 
   const goToNext = () => {
     setIsAutoPlaying(false);
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    setCurrentIndex((prev) => (prev + 1) % testimonialList.length);
+  };
+
+  const handleAddTestimonial = (t: Testimonial) => {
+    setTestimonialList([...testimonialList, t]);
+    setCurrentIndex(testimonialList.length);
+    setIsAddOpen(false);
   };
 
   return (
@@ -76,7 +126,7 @@ const Testimonials = () => {
             What Our Customers Say
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover why people love Corbet Culture
+            Discover why people love Corbett Cultures
           </p>
         </div>
 
@@ -85,18 +135,18 @@ const Testimonials = () => {
             <CardContent className="p-8 md:p-12">
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary mb-4">
-                  {testimonials[currentIndex].avatar}
+                  {testimonialList[currentIndex]?.avatar}
                 </div>
                 <div className="flex gap-1 mb-4">
-                  {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
+                  {[...Array(testimonialList[currentIndex]?.rating || 5)].map((_, i) => (
                     <Star key={i} className="w-5 h-5 fill-accent text-accent" />
                   ))}
                 </div>
                 <p className="text-lg md:text-xl text-muted-foreground mb-6 italic max-w-2xl">
-                  "{testimonials[currentIndex].review}"
+                  "{testimonialList[currentIndex]?.review}"
                 </p>
                 <p className="font-semibold text-lg text-foreground">
-                  {testimonials[currentIndex].name}
+                  {testimonialList[currentIndex]?.name}
                 </p>
               </div>
             </CardContent>
@@ -113,7 +163,7 @@ const Testimonials = () => {
             </Button>
 
             <div className="flex gap-2">
-              {testimonials.map((_, index) => (
+              {testimonialList.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => {
@@ -139,6 +189,24 @@ const Testimonials = () => {
               <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
+
+          {user && (
+            <div className="mt-8 text-center">
+              <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <Plus className="w-4 h-4" /> Add Your Testimonial
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Testimonial</DialogTitle>
+                  </DialogHeader>
+                  <AddTestimonialForm onSuccess={handleAddTestimonial} />
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
         </div>
       </div>
     </section>
