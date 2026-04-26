@@ -1,40 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Leaf, Flame, Utensils, Filter } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Search, Leaf, Flame, Utensils } from "lucide-react";
 import { menuData, MenuItem } from "@/data/menuData";
 
 const Menu = () => {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(menuData);
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVeg, setFilterVeg] = useState(false);
   const [filterSpicy, setFilterSpicy] = useState(false);
 
-  useEffect(() => {
-    fetchMenuItems();
-  }, []);
-
-  const fetchMenuItems = async () => {
-    const { data, error } = await supabase.from("menu").select("*");
-    if (data && !error && data.length > 0) {
-      const dbIds = new Set(data.map(i => i.id));
-      const combined = [...menuData, ...data.filter(i => !dbIds.has(i.id))];
-      setMenuItems(combined);
-    }
-  };
-
   const categories = ["All", ...Array.from(new Set(menuData.map(item => item.category)))];
 
   const getFilteredItems = () => {
-    return menuItems.filter((item) => {
+    return menuData.filter((item) => {
       const matchesCategory = activeCategory === "All" || item.category === activeCategory;
-      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           item.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesVeg = !filterVeg || item.is_veg;
       const matchesSpicy = !filterSpicy || item.is_spicy;
       return matchesCategory && matchesSearch && matchesVeg && matchesSpicy;
@@ -120,9 +105,9 @@ const Menu = () => {
                   <CardContent className="p-0">
                     <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                       {item.image_url ? (
-                        <img 
-                          src={item.image_url} 
-                          alt={item.name} 
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
                         />
                       ) : (
@@ -139,7 +124,7 @@ const Menu = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="p-6">
                       <div className="mb-2">
                         <span className="text-[10px] uppercase tracking-wider font-bold text-primary/60">{item.category}</span>
@@ -147,11 +132,11 @@ const Menu = () => {
                           {item.name}
                         </h4>
                       </div>
-                      
+
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-6 min-h-[2.5rem]">
                         {item.description || "A chef's special preparation using the finest seasonal ingredients."}
                       </p>
-                      
+
                       <div className="flex justify-between items-center mt-auto border-t border-border/50 pt-4">
                         <span className="text-2xl font-bold text-primary">₹{item.price}</span>
                         <Button size="sm" className="rounded-full px-5 group/btn overflow-hidden relative">
@@ -163,7 +148,7 @@ const Menu = () => {
                   </CardContent>
                 </Card>
               ))}
-              
+
               {filteredItems.length === 0 && (
                 <div className="col-span-full py-20 text-center flex flex-col items-center gap-4">
                   <div className="p-4 bg-muted rounded-full">
