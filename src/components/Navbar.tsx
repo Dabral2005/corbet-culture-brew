@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Shield } from "lucide-react";
+import { Menu, X, Shield, LogIn, LogOut } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isAdmin } = useAdmin();
+  const { user, isAdmin, signOut } = useAdmin();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,9 +45,12 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold text-primary">
-            Corbet Culture
-          </h1>
+          <div className="flex items-center gap-3">
+            <img src="/favicon.ico" alt="Logo" className="w-8 h-8 rounded-full" />
+            <h1 className="text-2xl md:text-3xl font-bold text-primary">
+              Corbett Cultures
+            </h1>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
@@ -70,6 +73,27 @@ const Navbar = () => {
               >
                 <Shield className="h-4 w-4" />
                 Admin
+              </Button>
+            )}
+            {user ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={signOut}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            ) : (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate("/auth")}
+                className="flex items-center gap-2"
+              >
+                <LogIn className="h-4 w-4" />
+                Sign In
               </Button>
             )}
           </div>
@@ -115,6 +139,33 @@ const Navbar = () => {
                 >
                   <Shield className="h-4 w-4" />
                   Admin Dashboard
+                </Button>
+              )}
+              {user ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    signOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => {
+                    navigate("/auth");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Sign In
                 </Button>
               )}
             </div>
