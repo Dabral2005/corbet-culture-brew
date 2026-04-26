@@ -12,12 +12,12 @@ const About = () => {
                 Our Story
               </Badge>
               <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                About Corbet Culture
+                About Corbett Cultures
               </h2>
             </div>
             
             <p className="text-lg text-muted-foreground leading-relaxed italic border-l-4 border-primary/20 pl-6 py-2">
-              At Corbet Culture, every sip is a celebration of comfort and
+              At Corbett Cultures, every sip is a celebration of comfort and
               craftsmanship. We brew with locally sourced beans and bake with
               love, bringing authentic flavors of India to your table.
             </p>
