@@ -5,10 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useNavigate } from "react-router-dom";
+
+const FORMSPREE_CONTACT_URL = "https://formspree.io/f/xpwzgkdl";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -24,21 +27,37 @@ const Contact = () => {
     email: "",
     message: "",
   });
+  const { user } = useAdmin();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to send a message.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
     setLoading(true);
 
     try {
       const validatedData = contactSchema.parse(formData);
 
-      const { error } = await supabase.from("contact_messages").insert([{
-        name: validatedData.name,
-        email: validatedData.email,
-        message: validatedData.message,
-      }]);
+      const response = await fetch(FORMSPREE_CONTACT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          _subject: `Contact Message from ${validatedData.name}`,
+          name: validatedData.name,
+          email: validatedData.email,
+          message: validatedData.message,
+        }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to send message");
 
       toast({
         title: "Message Sent!",
@@ -88,7 +107,7 @@ const Contact = () => {
           <div className="lg:col-span-1 space-y-6">
             <div className="space-y-4">
              {[
-                 { icon: MapPin, title: "Address", content: "Buddha Park, Giwai Srot, Kotdwar, pauri Garhwal, Uttarakhand 246149" },
+                 { icon: MapPin, title: "Address", content: "Buddha Park, Giwai Srot, Kotdwar, Pauri Garhwal, Uttarakhand 246149" },
                  { icon: Phone, title: "Phone", content: "+91 84456 40120" },
                  { icon: Mail, title: "Email", content: "mohitdabral780@gmail.com" },
                  { icon: Clock, title: "Hours", content: "Mon - Sun: 8:00 AM - 10:00 PM" }
@@ -173,14 +192,14 @@ const Contact = () => {
 
         <div className="mt-20 animate-fade-in relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-border/50">
            <iframe
-             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3466.74!2d78.52380!3d29.74600!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390923d1a1f6b0e5%3A0x6bcf4e2e2e2e2e2e!2sBuddha%20Park%2C%20Giwai%20Srot%2C%20Kotdwar%2C%20Pauri%20Garhwal%2C%20Uttarakhand%20246149!5e0!3m2!1sen!2sin!4v1714000000000!5m2!1sen!2sin"
+             src="https://maps.google.com/maps?q=Corbett%20Cultures%20Buddha%20Park,%20Giwai%20Srot,%20Kotdwar,%20Uttarakhand%20246149&t=&z=15&ie=UTF8&iwloc=&output=embed"
              width="100%"
              height="500"
              style={{ border: 0 }}
              allowFullScreen
              loading="lazy"
              referrerPolicy="no-referrer-when-downgrade"
-             title="Corbet Culture Café Location — Buddha Park, Giwai Srot, Kotdwar"
+             title="Corbett Cultures Café Location — Buddha Park, Giwai Srot, Kotdwar"
              className="grayscale hover:grayscale-0 transition-all duration-1000"
            />
         </div>
