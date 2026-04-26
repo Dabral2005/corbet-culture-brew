@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
 import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 
 // All local assets
@@ -20,16 +19,9 @@ import masalaDosaImg      from "@/assets/masala-dosa.jpg";
 import paneerImg          from "@/assets/paneer-butter-masala.jpg";
 import smoothieImg        from "@/assets/smoothie.jpg";
 
-interface GalleryImage {
-  id: string;
-  image_url: string;
-  caption: string | null;
-  category?: string;
-}
-
 type Category = "All" | "Ambience" | "Food" | "Drinks";
 
-const defaultImages: { url: string; caption: string; category: Category }[] = [
+const galleryImages: { url: string; caption: string; category: Category }[] = [
   { url: exteriorImg,     caption: "Corbett Culture — Signature Exterior Mural", category: "Ambience" },
   { url: owlMuralImg,     caption: "Majestic Owl Mural — Nature's Guardian",     category: "Ambience" },
   { url: deerMuralImg,    caption: "Forest Deer Mural — Gentle & Wild",          category: "Ambience" },
@@ -49,31 +41,13 @@ const defaultImages: { url: string; caption: string; category: Category }[] = [
 const CATEGORIES: Category[] = ["All", "Ambience", "Food", "Drinks"];
 
 const Gallery = () => {
-  const [dbImages, setDbImages] = useState<GalleryImage[]>([]);
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    const fetchGalleryImages = async () => {
-      const { data } = await supabase.from("gallery").select("*");
-      if (data && data.length > 0) setDbImages(data);
-    };
-    fetchGalleryImages();
-  }, []);
-
-  const allImages =
-    dbImages.length > 0
-      ? dbImages.map((img) => ({
-          url: img.image_url,
-          caption: img.caption ?? "Gallery Image",
-          category: (img.category as Category) ?? "All",
-        }))
-      : defaultImages;
-
   const filtered =
     activeCategory === "All"
-      ? allImages
-      : allImages.filter((img) => img.category === activeCategory);
+      ? galleryImages
+      : galleryImages.filter((img) => img.category === activeCategory);
 
   const openLightbox = (idx: number) => setLightboxIndex(idx);
   const closeLightbox = () => setLightboxIndex(null);
@@ -110,7 +84,7 @@ const Gallery = () => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* ── Section Header ── */}
+        {/* Section Header */}
         <div className="text-center mb-14 animate-fade-in space-y-4">
           <Badge
             variant="outline"
@@ -127,7 +101,7 @@ const Gallery = () => {
           </p>
         </div>
 
-        {/* ── Category Filter ── */}
+        {/* Category Filter */}
         <div
           className="flex flex-wrap justify-center gap-3 mb-10 animate-fade-in"
           style={{ animationDelay: "0.1s" }}
@@ -147,7 +121,7 @@ const Gallery = () => {
           ))}
         </div>
 
-        {/* ── Image Grid ── */}
+        {/* Image Grid */}
         {filtered.length === 0 ? (
           <p className="text-center text-muted-foreground py-20 text-lg">
             No images in this category yet.
@@ -161,7 +135,6 @@ const Gallery = () => {
                 style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
                 onClick={() => openLightbox(index)}
               >
-                {/* Fixed-height container so images never collapse */}
                 <div className="aspect-square w-full relative overflow-hidden">
                   <img
                     src={image.url}
@@ -195,12 +168,11 @@ const Gallery = () => {
         )}
       </div>
 
-      {/* ── Lightbox ── */}
+      {/* Lightbox */}
       <Dialog open={lightboxIndex !== null} onOpenChange={closeLightbox}>
         <DialogContent className="max-w-5xl p-0 bg-black/95 border border-white/10 shadow-2xl overflow-hidden rounded-2xl">
           {lightboxIndex !== null && (
             <div className="flex flex-col items-center">
-              {/* Close button */}
               <button
                 onClick={closeLightbox}
                 className="absolute top-3 right-3 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-colors"
@@ -209,14 +181,12 @@ const Gallery = () => {
                 <X className="w-4 h-4" />
               </button>
 
-              {/* Main image */}
               <div className="relative w-full">
                 <img
                   src={filtered[lightboxIndex].url}
                   alt={filtered[lightboxIndex].caption}
                   className="w-full max-h-[72vh] object-contain block"
                 />
-                {/* Caption + counter */}
                 <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent px-6 py-4">
                   <p className="text-white font-semibold text-sm sm:text-base text-center">
                     {filtered[lightboxIndex].caption}
@@ -227,7 +197,6 @@ const Gallery = () => {
                 </div>
               </div>
 
-              {/* Navigation */}
               <div className="flex gap-4 py-4">
                 <button
                   onClick={goPrev}
