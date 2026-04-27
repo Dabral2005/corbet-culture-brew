@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useNavigate } from "react-router-dom";
 
-const FORMSPREE_CONTACT_URL = "https://formspree.io/f/xpwzgkdl";
+import { supabase } from "@/integrations/supabase/client";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -46,18 +46,29 @@ const Contact = () => {
     try {
       const validatedData = contactSchema.parse(formData);
 
-      const response = await fetch(FORMSPREE_CONTACT_URL, {
+      // Save to database
+      const { error } = await supabase.from("contact_messages").insert([{
+        name: validatedData.name,
+        email: validatedData.email,
+        message: validatedData.message,
+      }]);
+
+      if (error) throw error;
+
+      // Send email notification
+      await fetch("https://formsubmit.co/ajax/mohitdabral780@gmail.com", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({
-          _subject: `Contact Message from ${validatedData.name}`,
           name: validatedData.name,
           email: validatedData.email,
           message: validatedData.message,
+          _subject: `New Contact Form Submission from ${validatedData.name}`,
         }),
       });
-
-      if (!response.ok) throw new Error("Failed to send message");
 
       toast({
         title: "Message Sent!",
@@ -128,7 +139,7 @@ const Contact = () => {
 
             <Button
               onClick={openWhatsApp}
-              className="w-full bg-success hover:bg-success/90 gap-2 h-14 rounded-xl text-lg shadow-lg shadow-success/20 transition-all hover:scale-[1.02] active:scale-95"
+              className="w-full bg-success hover:bg-success/90 text-success-foreground gap-2 h-14 rounded-xl text-lg shadow-lg shadow-success/20 transition-all hover:scale-[1.02] active:scale-95"
             >
               <MessageCircle className="w-6 h-6" />
               Chat on WhatsApp
