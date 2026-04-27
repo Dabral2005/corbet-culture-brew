@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,11 @@ const Menu = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVeg, setFilterVeg] = useState(false);
   const [filterSpicy, setFilterSpicy] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(12);
+
+  useEffect(() => {
+    setVisibleCount(12);
+  }, [activeCategory, searchQuery, filterVeg, filterSpicy]);
 
   const categories = ["All", ...Array.from(new Set(menuData.map(item => item.category)))];
 
@@ -64,7 +69,7 @@ const Menu = () => {
               <Button
                 variant={filterVeg ? "default" : "outline"}
                 onClick={() => setFilterVeg(!filterVeg)}
-                className={`gap-2 rounded-full px-6 transition-all duration-300 ${filterVeg ? 'bg-success hover:bg-success/90 border-success shadow-md shadow-success/20' : 'hover:border-success/50 hover:text-success'}`}
+                className={`gap-2 rounded-full px-6 transition-all duration-300 ${filterVeg ? 'bg-success hover:bg-success/90 text-success-foreground border-success shadow-md shadow-success/20' : 'hover:border-success/50 hover:text-success'}`}
               >
                 <Leaf className={`h-4 w-4 ${filterVeg ? 'fill-white' : ''}`} />
                 Vegetarian
@@ -72,7 +77,7 @@ const Menu = () => {
               <Button
                 variant={filterSpicy ? "default" : "outline"}
                 onClick={() => setFilterSpicy(!filterSpicy)}
-                className={`gap-2 rounded-full px-6 transition-all duration-300 ${filterSpicy ? 'bg-destructive hover:bg-destructive/90 border-destructive shadow-md shadow-destructive/20' : 'hover:border-destructive/50 hover:text-destructive'}`}
+                className={`gap-2 rounded-full px-6 transition-all duration-300 ${filterSpicy ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground border-destructive shadow-md shadow-destructive/20' : 'hover:border-destructive/50 hover:text-destructive'}`}
               >
                 <Flame className={`h-4 w-4 ${filterSpicy ? 'fill-white' : ''}`} />
                 Spicy
@@ -97,7 +102,7 @@ const Menu = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-h-[400px]">
-              {filteredItems.map((item) => (
+              {filteredItems.slice(0, visibleCount).map((item) => (
                 <Card
                   key={item.id}
                   className="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group/card ring-1 ring-border/50 animate-fade-in"
@@ -117,10 +122,10 @@ const Menu = () => {
                       )}
                       <div className="absolute top-4 right-4 flex flex-col gap-2">
                         {item.is_veg && (
-                          <Badge className="bg-success text-white border-none shadow-sm px-2">Veg</Badge>
+                          <Badge className="bg-success hover:bg-success/90 text-success-foreground border-none shadow-sm px-2">Veg</Badge>
                         )}
                         {item.is_spicy && (
-                          <Badge className="bg-destructive text-white border-none shadow-sm px-2">Spicy</Badge>
+                          <Badge className="bg-destructive hover:bg-destructive/90 text-destructive-foreground border-none shadow-sm px-2">Spicy</Badge>
                         )}
                       </div>
                     </div>
@@ -161,6 +166,18 @@ const Menu = () => {
                 </div>
               )}
             </div>
+            
+            {visibleCount < filteredItems.length && (
+              <div className="mt-12 flex justify-center animate-fade-in">
+                <Button 
+                  onClick={() => setVisibleCount(prev => prev + 12)}
+                  variant="outline"
+                  className="rounded-full px-8 py-6 text-lg shadow-sm hover:shadow-md transition-all"
+                >
+                  Load More
+                </Button>
+              </div>
+            )}
           </Tabs>
         </div>
       </div>

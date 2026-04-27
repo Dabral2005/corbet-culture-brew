@@ -19,17 +19,17 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     id: 1,
-    name: "Priya Sharma",
+    name: "Keerti Sharma",
     rating: 5,
     review: "Best café in Kotdwara! The masala chai and samosas are absolutely divine. The ambiance is so cozy and perfect for catching up with friends.",
-    avatar: "PS"
+    avatar: "KS"
   },
   {
     id: 2,
-    name: "Rahul Kumar",
+    name: "Mohit Dabral",
     rating: 5,
     review: "Love the coffee here! The cappuccino is perfectly brewed and the staff is very friendly. Highly recommend the paneer butter masala.",
-    avatar: "RK"
+    avatar: "MD"
   },
   {
     id: 3,
@@ -44,6 +44,13 @@ const testimonials: Testimonial[] = [
     rating: 5,
     review: "Excellent service and delicious food! The biryani and dosa are my favorites. Great place to relax and enjoy quality time.",
     avatar: "VS"
+  },
+  {
+    id: 5,
+    name: "Shefali Bisht",
+    rating: 4,
+    review: "Nice place to sit and relax. Coffee was great, snacks were decent. Slightly pricey but worth it for the vibe",
+    avatar: "SB"
   },
 ];
 
@@ -170,11 +177,10 @@ const Testimonials = () => {
                     setIsAutoPlaying(false);
                     setCurrentIndex(index);
                   }}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentIndex
+                  className={`w-2 h-2 rounded-full transition-all ${index === currentIndex
                       ? "bg-primary w-8"
                       : "bg-muted-foreground/30"
-                  }`}
+                    }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
               ))}

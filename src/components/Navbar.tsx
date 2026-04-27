@@ -76,15 +76,24 @@ const Navbar = () => {
               </Button>
             )}
             {user ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={signOut}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
+              <div className="flex items-center gap-4">
+                {user.user_metadata?.avatar_url && (
+                  <img
+                    src={user.user_metadata.avatar_url}
+                    alt="User"
+                    className="w-8 h-8 rounded-full border-2 border-primary/20"
+                  />
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={signOut}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </Button>
+              </div>
             ) : (
               <Button
                 variant="default"
@@ -142,18 +151,27 @@ const Navbar = () => {
                 </Button>
               )}
               {user ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    signOut();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-center gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Button>
+                <div className="flex flex-col items-center gap-4">
+                  {user.user_metadata?.avatar_url && (
+                    <img
+                      src={user.user_metadata.avatar_url}
+                      alt="User"
+                      className="w-10 h-10 rounded-full border-2 border-primary/20"
+                    />
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      signOut();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </div>
               ) : (
                 <Button
                   variant="default"

@@ -75,7 +75,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 className="text-2xl font-bold mb-4">Corbet Culture</h3>
+            <h3 className="text-2xl font-bold mb-4">Corbett Cultures</h3>
             <p className="text-primary-foreground/80">
               Brewing exceptional coffee and serving authentic Indian flavors in the heart of Kotdwara.
             </p>
@@ -94,6 +94,9 @@ const Footer = () => {
                   </button>
                 </li>
               ))}
+              <li className="pt-4 border-t border-primary-foreground/20 mt-4">
+                <span className="text-primary-foreground/60 text-sm italic">Designed & Developed by Mohit Dabral</span>
+              </li>
             </ul>
           </div>
 
@@ -157,7 +160,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-primary-foreground/20 pt-8 text-center text-primary-foreground/80">
-          <p>&copy; 2025 Corbet Culture. All rights reserved.</p>
+          <p>&copy; 2025 Corbett Cultures. All rights reserved.</p>
         </div>
       </div>
 
