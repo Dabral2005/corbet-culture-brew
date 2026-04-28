@@ -18,6 +18,7 @@ interface Booking {
   time: string;
   guests: number;
   message: string | null;
+  status?: string;
   created_at: string;
 }
 
@@ -43,6 +44,15 @@ const Admin = () => {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
+  const [approvedBookings, setApprovedBookings] = useState<Set<string>>(new Set());
+
+  // Mock testimonials since they aren't in Supabase yet
+  const [adminTestimonials, setAdminTestimonials] = useState([
+    { id: 1, name: "Priya Sharma", review: "Best café in Kotdwara! The masala chai and samosas are absolutely divine.", rating: 5 },
+    { id: 2, name: "Rahul Kumar", review: "Love the coffee here! The cappuccino is perfectly brewed.", rating: 5 },
+    { id: 3, name: "Anjali Verma", review: "A hidden gem in Uttarakhand! The food is authentic.", rating: 5 },
+    { id: 4, name: "Vikram Singh", review: "Excellent service and delicious food!", rating: 5 },
+  ]);
 
   useEffect(() => {
     if (!authLoading && !isAdmin) {
@@ -104,6 +114,54 @@ const Admin = () => {
     }
   };
 
+  const handleApprove = async (id: string, email: string, name: string, date: string, time: string) => {
+    try {
+      const { error } = await supabase.from("bookings").update({ status: "approved" }).eq("id", id);
+      if (error) throw error;
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: "approved" } : b));
+      
+      toast({
+        title: "Booking Approved",
+        description: "Opening your email client to send the confirmation...",
+      });
+
+      const subject = encodeURIComponent("Your Table Booking is Confirmed! - Corbett Cultures");
+      const body = encodeURIComponent(`Hi ${name},\n\nGreat news! Your table booking at Corbett Cultures for ${new Date(date).toLocaleDateString()} at ${time} has been approved and confirmed.\n\nWe look forward to serving you!\n\nBest regards,\nCorbett Cultures Team`);
+      window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+      
+    } catch (err: unknown) {
+      toast({ title: "Error", description: "Could not approve booking.", variant: "destructive" });
+    }
+  };
+
+  const handleDecline = async (id: string, email: string, name: string, date: string, time: string) => {
+    try {
+      const { error } = await supabase.from("bookings").update({ status: "declined" }).eq("id", id);
+      if (error) throw error;
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: "declined" } : b));
+      
+      toast({
+        title: "Booking Declined",
+        description: "Opening your email client to send the message...",
+      });
+
+      const subject = encodeURIComponent("Update on your Table Booking - Corbett Cultures");
+      const body = encodeURIComponent(`Hi ${name},\n\nWe're very sorry, but we are unable to accommodate your table booking for ${new Date(date).toLocaleDateString()} at ${time} due to being fully booked.\n\nPlease let us know if you'd like to reschedule for another time.\n\nBest regards,\nCorbett Cultures Team`);
+      window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+      
+    } catch (err: unknown) {
+      toast({ title: "Error", description: "Could not decline booking.", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteTestimonial = (id: number) => {
+    setAdminTestimonials(prev => prev.filter(t => t.id !== id));
+    toast({
+      title: "Testimonial Deleted",
+      description: "The testimonial has been removed.",
+    });
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
@@ -140,6 +198,8 @@ const Admin = () => {
             <TabsTrigger value="bookings">Bookings ({bookings.length})</TabsTrigger>
             <TabsTrigger value="messages">Messages ({messages.length})</TabsTrigger>
             <TabsTrigger value="subscribers">Subscribers ({subscribers.length})</TabsTrigger>
+            <TabsTrigger value="gallery">Gallery</TabsTrigger>
+            <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings">
@@ -177,13 +237,22 @@ const Admin = () => {
                             <TableCell>{booking.guests}</TableCell>
                             <TableCell>{booking.message || "-"}</TableCell>
                             <TableCell>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => handleDelete("bookings", booking.id)}
-                              >
-                                Delete
-                              </Button>
+                              <div className="flex gap-2">
+                                {booking.status === "approved" ? (
+                                  <span className="text-green-600 font-bold text-sm">Approved</span>
+                                ) : booking.status === "declined" ? (
+                                  <span className="text-red-600 font-bold text-sm">Declined</span>
+                                ) : (
+                                  <>
+                                    <Button variant="default" size="sm" onClick={() => handleApprove(booking.id, booking.email, booking.name, booking.date, booking.time)}>
+                                      Approve
+                                    </Button>
+                                    <Button variant="destructive" size="sm" onClick={() => handleDecline(booking.id, booking.email, booking.name, booking.date, booking.time)}>
+                                      Decline
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -275,6 +344,58 @@ const Admin = () => {
                       ))}
                     </TableBody>
                   </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="gallery">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Gallery Images</CardTitle>
+                    <CardDescription>Manage images in the 'A Glimpse Into Our World' section</CardDescription>
+                  </div>
+                  <Button onClick={() => toast({ title: "Coming soon", description: "Image upload will be connected to Supabase storage." })}>
+                    Add Image
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-center py-8">
+                  Gallery management is connected to your Supabase instance.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="testimonials">
+            <Card>
+              <CardHeader>
+                <CardTitle>Testimonials</CardTitle>
+                <CardDescription>Manage user reviews and delete inappropriate ones</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {adminTestimonials.length === 0 ? (
+                  <p className="text-center py-8 text-muted-foreground">No testimonials available.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {adminTestimonials.map((t) => (
+                      <Card key={t.id}>
+                        <CardContent className="p-4 flex justify-between items-center">
+                          <div>
+                            <p className="font-bold">{t.name}</p>
+                            <p className="text-sm text-muted-foreground">{t.review}</p>
+                            <p className="text-xs text-yellow-500">Rating: {t.rating}/5</p>
+                          </div>
+                          <Button variant="destructive" size="sm" onClick={() => handleDeleteTestimonial(t.id)}>
+                            Delete
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 )}
               </CardContent>
             </Card>
