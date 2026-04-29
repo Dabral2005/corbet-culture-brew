@@ -20,6 +20,8 @@ export interface GalleryImage {
   image_url: string;
   caption: string;
   category: Category;
+  display_order?: number;
+  is_hidden?: boolean;
   isLocal?: boolean;
 }
 

@@ -15,29 +15,46 @@ const Gallery = () => {
 
   const fetchImages = async () => {
     try {
-      // Fetch remote images and hidden assets in parallel
-      const [remoteRes, hiddenRes] = await Promise.all([
-        supabase.from("gallery").select("*").order("created_at", { ascending: false }),
-        supabase.from("hidden_assets").select("asset_id")
+      const [remoteRes, overridesRes] = await Promise.all([
+        supabase.from("gallery").select("*").order("display_order", { ascending: true }),
+        supabase.from("asset_overrides").select("*")
       ]);
 
       if (remoteRes.error) throw remoteRes.error;
       
-      const hiddenIds = new Set((hiddenRes.data || []).map(h => h.asset_id));
+      const overridesMap = (overridesRes.data || []).reduce((acc: any, curr: any) => {
+        acc[curr.asset_id] = curr;
+        return acc;
+      }, {});
       
       const remoteData = (remoteRes.data || []).map((img: any) => ({
         id: img.id,
         image_url: img.image_url,
         caption: img.caption || "",
-        category: (img.category as Category) || "All"
+        category: (img.category as Category) || "All",
+        display_order: img.display_order || 0
       }));
       
-      // Combine local images with remote ones, filtering out hidden local ones
-      const visibleLocal = LOCAL_IMAGES.filter(img => !hiddenIds.has(img.id));
-      setImages([...remoteData, ...visibleLocal]);
+      // Combine local images with overrides
+      const localWithOverrides = LOCAL_IMAGES.map(local => {
+        const override = overridesMap[local.id];
+        return {
+          ...local,
+          caption: override?.caption ?? local.caption,
+          category: override?.category ?? local.category,
+          display_order: override?.display_order ?? 0,
+          is_hidden: override?.is_hidden ?? false
+        };
+      }).filter(img => !img.is_hidden);
+
+      // Final merge and sort by order
+      const combined = [...remoteData, ...localWithOverrides].sort(
+        (a, b) => (a.display_order || 0) - (b.display_order || 0)
+      );
+
+      setImages(combined);
     } catch (err) {
       console.error("Error fetching gallery images:", err);
-      // Fallback to local images if remote fails
       setImages(LOCAL_IMAGES);
     } finally {
       setLoading(false);
@@ -103,9 +120,7 @@ const Gallery = () => {
           </p>
         </div>
 
-        <div
-          className="flex flex-wrap justify-center gap-3 mb-10 animate-fade-in"
-        >
+        <div className="flex flex-wrap justify-center gap-3 mb-10 animate-fade-in">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
