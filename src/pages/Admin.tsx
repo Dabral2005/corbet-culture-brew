@@ -273,10 +273,10 @@ const Admin = () => {
             </div>
           </div>
           <div className="flex gap-3">
-            <Button onClick={() => fetchData()} variant="outline" className="border-white/10 text-white hover:bg-white/5">
+            <Button onClick={() => fetchData()} variant="outline" className="border-white/10 text-white hover:bg-white/10 hover:text-white">
               Refresh Data
             </Button>
-            <Button onClick={handleSignOut} variant="outline" className="border-white/10 text-white hover:bg-white/5">
+            <Button onClick={handleSignOut} variant="outline" className="border-white/10 text-white hover:bg-white/10 hover:text-white">
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>

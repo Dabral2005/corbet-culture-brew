@@ -211,7 +211,7 @@ const Contact = () => {
              loading="lazy"
              referrerPolicy="no-referrer-when-downgrade"
              title="Corbett Cultures Café Location — Buddha Park, Giwai Srot, Kotdwar"
-             className="grayscale hover:grayscale-0 transition-all duration-1000"
+             className="transition-all duration-1000"
            />
         </div>
       </div>
