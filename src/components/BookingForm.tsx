@@ -229,9 +229,21 @@ const BookingForm = ({ onSuccess }: BookingFormProps) => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Booking..." : "Confirm Booking"}
-        </Button>
+        {user ? (
+          <Button type="submit" className="w-full shadow-lg hover:shadow-primary/20 transition-all" disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Confirm Booking
+          </Button>
+        ) : (
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="w-full border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+            onClick={() => navigate("/auth")}
+          >
+            Sign In to Confirm Booking
+          </Button>
+        )}
       </form>
     </Form>
   );

@@ -144,10 +144,6 @@ const Menu = () => {
 
                       <div className="flex justify-between items-center mt-auto border-t border-border/50 pt-4">
                         <span className="text-2xl font-bold text-primary">₹{item.price}</span>
-                        <Button size="sm" className="rounded-full px-5 group/btn overflow-hidden relative">
-                          <span className="relative z-10">Add to cart</span>
-                          <div className="absolute inset-0 bg-accent translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
-                        </Button>
                       </div>
                     </div>
                   </CardContent>
