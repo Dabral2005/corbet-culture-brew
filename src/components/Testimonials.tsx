@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { StarRating } from "./StarRating";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAdmin } from "@/hooks/useAdmin";
 
 interface Testimonial {
   id: string;
@@ -104,6 +106,8 @@ const AddTestimonialForm = ({ onSuccess }: { onSuccess: () => void }) => {
 };
 
 const Testimonials = () => {
+  const { user } = useAdmin();
+  const navigate = useNavigate();
   const [testimonialList, setTestimonialList] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -245,19 +249,30 @@ const Testimonials = () => {
           )}
 
           <div className="mt-12 text-center">
-            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="gap-2 rounded-full px-8 shadow-lg hover:shadow-primary/20 transition-all">
-                  <Plus className="w-5 h-5" /> Share Your Experience
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold text-center">Leave a Testimonial</DialogTitle>
-                </DialogHeader>
-                <AddTestimonialForm onSuccess={handleSuccess} />
-              </DialogContent>
-            </Dialog>
+            {user ? (
+              <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="gap-2 rounded-full px-8 shadow-lg hover:shadow-primary/20 transition-all">
+                    <Plus className="w-5 h-5" /> Share Your Experience
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold text-center">Leave a Testimonial</DialogTitle>
+                  </DialogHeader>
+                  <AddTestimonialForm onSuccess={handleSuccess} />
+                </DialogContent>
+              </Dialog>
+            ) : (
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="gap-2 rounded-full px-8 shadow-lg hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                onClick={() => navigate("/auth")}
+              >
+                Sign In to Share Your Experience
+              </Button>
+            )}
           </div>
         </div>
       </div>
