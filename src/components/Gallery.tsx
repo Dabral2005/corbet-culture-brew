@@ -1,53 +1,57 @@
 import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
-
-// All local assets
-import cafeInteriorImg    from "@/assets/cafe-interior.jpg";
-import owlMuralImg        from "@/assets/gallery-owl.png";
-import deerMuralImg       from "@/assets/gallery-deer.png";
-import exteriorImg        from "@/assets/gallery-exterior.png";
-import foodDish1Img       from "@/assets/gallery-food-1.png";
-import foodDish2Img       from "@/assets/gallery-food-2.png";
-import samosaImg          from "@/assets/samosa.jpg";
-import gulabJamunImg      from "@/assets/gulab-jamun.jpg";
-import biryaniImg         from "@/assets/biryani.jpg";
-import cappuccinoImg      from "@/assets/cappuccino.jpg";
-import masalaChaiImg      from "@/assets/masala-chai.jpg";
-import masalaDosaImg      from "@/assets/masala-dosa.jpg";
-import paneerImg          from "@/assets/paneer-butter-masala.jpg";
-import smoothieImg        from "@/assets/smoothie.jpg";
-
-type Category = "All" | "Ambience" | "Food" | "Drinks";
-
-const galleryImages: { url: string; caption: string; category: Category }[] = [
-  { url: exteriorImg,     caption: "Corbett Culture — Signature Exterior Mural", category: "Ambience" },
-  { url: owlMuralImg,     caption: "Majestic Owl Mural — Nature's Guardian",     category: "Ambience" },
-  { url: deerMuralImg,    caption: "Forest Deer Mural — Gentle & Wild",          category: "Ambience" },
-  { url: cafeInteriorImg, caption: "Cozy Café Interior",                         category: "Ambience" },
-  { url: foodDish1Img,    caption: "Signature Creamy Delicacy",                  category: "Food"     },
-  { url: foodDish2Img,    caption: "Authentic Spicy Sensation",                  category: "Food"     },
-  { url: biryaniImg,      caption: "Fragrant Dum Biryani",                       category: "Food"     },
-  { url: gulabJamunImg,   caption: "Melt-in-Mouth Gulab Jamun",                 category: "Food"     },
-  { url: samosaImg,       caption: "Crispy Golden Samosa",                       category: "Food"     },
-  { url: masalaDosaImg,   caption: "Classic Masala Dosa",                        category: "Food"     },
-  { url: paneerImg,       caption: "Rich Paneer Butter Masala",                  category: "Food"     },
-  { url: cappuccinoImg,   caption: "Artisan Cappuccino",                         category: "Drinks"   },
-  { url: masalaChaiImg,   caption: "Spiced Masala Chai",                         category: "Drinks"   },
-  { url: smoothieImg,     caption: "Fresh Tropical Smoothie",                    category: "Drinks"   },
-];
+import { X, ChevronLeft, ChevronRight, ZoomIn, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { LOCAL_IMAGES, Category, GalleryImage } from "@/data/galleryData";
 
 const CATEGORIES: Category[] = ["All", "Ambience", "Food", "Drinks"];
 
 const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchImages = async () => {
+    try {
+      // Fetch remote images and hidden assets in parallel
+      const [remoteRes, hiddenRes] = await Promise.all([
+        supabase.from("gallery").select("*").order("created_at", { ascending: false }),
+        supabase.from("hidden_assets").select("asset_id")
+      ]);
+
+      if (remoteRes.error) throw remoteRes.error;
+      
+      const hiddenIds = new Set((hiddenRes.data || []).map(h => h.asset_id));
+      
+      const remoteData = (remoteRes.data || []).map((img: any) => ({
+        id: img.id,
+        image_url: img.image_url,
+        caption: img.caption || "",
+        category: (img.category as Category) || "All"
+      }));
+      
+      // Combine local images with remote ones, filtering out hidden local ones
+      const visibleLocal = LOCAL_IMAGES.filter(img => !hiddenIds.has(img.id));
+      setImages([...remoteData, ...visibleLocal]);
+    } catch (err) {
+      console.error("Error fetching gallery images:", err);
+      // Fallback to local images if remote fails
+      setImages(LOCAL_IMAGES);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchImages();
+  }, []);
 
   const filtered =
     activeCategory === "All"
-      ? galleryImages
-      : galleryImages.filter((img) => img.category === activeCategory);
+      ? images
+      : images.filter((img) => img.category === activeCategory);
 
   const openLightbox = (idx: number) => setLightboxIndex(idx);
   const closeLightbox = () => setLightboxIndex(null);
@@ -77,14 +81,12 @@ const Gallery = () => {
 
   return (
     <section id="gallery" className="py-24 bg-muted/30 relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Section Header */}
         <div className="text-center mb-14 animate-fade-in space-y-4">
           <Badge
             variant="outline"
@@ -101,10 +103,8 @@ const Gallery = () => {
           </p>
         </div>
 
-        {/* Category Filter */}
         <div
           className="flex flex-wrap justify-center gap-3 mb-10 animate-fade-in"
-          style={{ animationDelay: "0.1s" }}
         >
           {CATEGORIES.map((cat) => (
             <button
@@ -121,8 +121,11 @@ const Gallery = () => {
           ))}
         </div>
 
-        {/* Image Grid */}
-        {filtered.length === 0 ? (
+        {loading && images.length === 0 ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : filtered.length === 0 ? (
           <p className="text-center text-muted-foreground py-20 text-lg">
             No images in this category yet.
           </p>
@@ -130,22 +133,19 @@ const Gallery = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {filtered.map((image, index) => (
               <div
-                key={`${activeCategory}-${index}`}
+                key={image.id}
                 className="group relative overflow-hidden rounded-2xl cursor-pointer shadow-md hover:shadow-2xl transition-all duration-500 animate-fade-in bg-muted"
-                style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
                 onClick={() => openLightbox(index)}
               >
                 <div className="aspect-square w-full relative overflow-hidden">
                   <img
-                    src={image.url}
+                    src={image.image_url}
                     alt={image.caption}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
-                    decoding="async"
                   />
                 </div>
 
-                {/* Hover overlay with caption */}
                 <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-3">
                   <p className="text-white font-semibold text-xs sm:text-sm leading-snug drop-shadow">
                     {image.caption}
@@ -156,7 +156,6 @@ const Gallery = () => {
                   </span>
                 </div>
 
-                {/* Category chip */}
                 <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <span className="inline-block bg-primary/90 text-primary-foreground text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
                     {image.category}
@@ -168,10 +167,9 @@ const Gallery = () => {
         )}
       </div>
 
-      {/* Lightbox */}
       <Dialog open={lightboxIndex !== null} onOpenChange={closeLightbox}>
         <DialogContent className="max-w-5xl p-0 bg-black/95 border border-white/10 shadow-2xl overflow-hidden rounded-2xl">
-          {lightboxIndex !== null && (
+          {lightboxIndex !== null && filtered[lightboxIndex] && (
             <div className="flex flex-col items-center">
               <button
                 onClick={closeLightbox}
@@ -183,7 +181,7 @@ const Gallery = () => {
 
               <div className="relative w-full">
                 <img
-                  src={filtered[lightboxIndex].url}
+                  src={filtered[lightboxIndex].image_url}
                   alt={filtered[lightboxIndex].caption}
                   className="w-full max-h-[72vh] object-contain block"
                 />
