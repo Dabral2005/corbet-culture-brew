@@ -66,17 +66,49 @@ CREATE POLICY "Admins can manage gallery"
   FOR ALL
   TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
--- Table to track hidden local assets
-CREATE TABLE IF NOT EXISTS public.hidden_assets (
+-- Add display_order to gallery
+ALTER TABLE public.gallery ADD COLUMN IF NOT EXISTS display_order integer DEFAULT 0;
+
+-- Table to store overrides for local assets (caption, category, order, hidden status)
+CREATE TABLE IF NOT EXISTS public.asset_overrides (
   asset_id text PRIMARY KEY,
-  hidden_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+  caption text,
+  category text,
+  display_order integer DEFAULT 0,
+  is_hidden boolean DEFAULT false,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
-ALTER TABLE public.hidden_assets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.asset_overrides ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone can view hidden assets"
-  ON public.hidden_assets FOR SELECT TO public USING (true);
+CREATE POLICY "Anyone can view asset overrides"
+  ON public.asset_overrides FOR SELECT TO public USING (true);
 
-CREATE POLICY "Admins can manage hidden assets"
-  ON public.hidden_assets FOR ALL TO authenticated
+CREATE POLICY "Admins can manage asset overrides"
+  ON public.asset_overrides FOR ALL TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
+
+CREATE TABLE IF NOT EXISTS public.testimonials (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  review text NOT NULL,
+  rating numeric NOT NULL DEFAULT 5,
+  avatar text,
+  user_id uuid REFERENCES auth.users(id),
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view testimonials"
+  ON public.testimonials FOR SELECT TO public USING (true);
+
+CREATE POLICY "Authenticated users can insert testimonials"
+  ON public.testimonials FOR INSERT TO authenticated WITH CHECK (true);
+
+CREATE POLICY "Admins can manage testimonials"
+  ON public.testimonials FOR ALL TO authenticated
+  USING (public.has_role(auth.uid(), 'admin'));
+
+-- Drop the old hidden_assets table as it's now merged into asset_overrides
+DROP TABLE IF EXISTS public.hidden_assets;
