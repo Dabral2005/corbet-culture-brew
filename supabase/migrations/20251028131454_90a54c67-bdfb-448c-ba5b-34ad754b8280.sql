@@ -21,6 +21,7 @@ CREATE TABLE public.bookings (
   time time NOT NULL,
   guests integer NOT NULL,
   message text,
+  status text DEFAULT 'pending',
   created_at timestamptz DEFAULT now()
 );
 
