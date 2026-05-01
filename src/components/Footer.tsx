@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Facebook, Instagram, Twitter, ChevronUp } from "lucide-react";
@@ -94,6 +95,16 @@ const Footer = () => {
                   </button>
                 </li>
               ))}
+              <li className="pt-2">
+                <Link to="/privacy-policy" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors text-sm">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li className="pt-1">
+                <Link to="/terms-of-use" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors text-sm">
+                  Terms of Use
+                </Link>
+              </li>
               <li className="pt-4 border-t border-primary-foreground/20 mt-4">
                 <span className="text-primary-foreground/60 text-sm italic">Designed & Developed by Mohit Dabral</span>
               </li>

@@ -12,10 +12,16 @@ const Menu = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVeg, setFilterVeg] = useState(false);
   const [filterSpicy, setFilterSpicy] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(12);
 
   useEffect(() => {
-    setVisibleCount(12);
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setVisibleCount(12);
+      setLoading(false);
+    }, 400);
+    return () => clearTimeout(timer);
   }, [activeCategory, searchQuery, filterVeg, filterSpicy]);
 
   const categories = ["All", ...Array.from(new Set(menuData.map(item => item.category)))];
@@ -102,53 +108,70 @@ const Menu = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-h-[400px]">
-              {filteredItems.slice(0, visibleCount).map((item) => (
-                <Card
-                  key={item.id}
-                  className="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group/card ring-1 ring-border/50 animate-fade-in"
-                >
-                  <CardContent className="p-0">
-                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                      {item.image_url ? (
-                        <img
-                          src={item.image_url}
-                          alt={item.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-primary/20">
-                          <Utensils className="h-12 w-12" />
+              {loading ? (
+                [...Array(8)].map((_, i) => (
+                  <Card key={i} className="overflow-hidden border-none shadow-sm ring-1 ring-border/50 bg-muted/20">
+                    <CardContent className="p-0">
+                      <div className="aspect-[4/3] bg-muted relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                      </div>
+                      <div className="p-6 space-y-4">
+                        <div className="h-4 w-1/4 bg-muted rounded animate-pulse" />
+                        <div className="h-6 w-3/4 bg-muted rounded animate-pulse" />
+                        <div className="h-10 w-full bg-muted rounded animate-pulse" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                filteredItems.slice(0, visibleCount).map((item) => (
+                  <Card
+                    key={item.id}
+                    className="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group/card ring-1 ring-border/50 animate-fade-in"
+                  >
+                    <CardContent className="p-0">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                        {item.image_url ? (
+                          <img
+                            src={item.image_url}
+                            alt={item.name}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-primary/20">
+                            <Utensils className="h-12 w-12" />
+                          </div>
+                        )}
+                        <div className="absolute top-4 right-4 flex flex-col gap-2">
+                          {item.is_veg && (
+                            <Badge className="bg-success hover:bg-success/90 text-success-foreground border-none shadow-sm px-2">Veg</Badge>
+                          )}
+                          {item.is_spicy && (
+                            <Badge className="bg-destructive hover:bg-destructive/90 text-destructive-foreground border-none shadow-sm px-2">Spicy</Badge>
+                          )}
                         </div>
-                      )}
-                      <div className="absolute top-4 right-4 flex flex-col gap-2">
-                        {item.is_veg && (
-                          <Badge className="bg-success hover:bg-success/90 text-success-foreground border-none shadow-sm px-2">Veg</Badge>
-                        )}
-                        {item.is_spicy && (
-                          <Badge className="bg-destructive hover:bg-destructive/90 text-destructive-foreground border-none shadow-sm px-2">Spicy</Badge>
-                        )}
                       </div>
-                    </div>
-
-                    <div className="p-6">
-                      <div className="mb-2">
-                        <span className="text-[10px] uppercase tracking-wider font-bold text-primary/60">{item.category}</span>
-                        <h4 className="font-bold text-xl group-hover/card:text-primary transition-colors leading-tight">
-                          {item.name}
-                        </h4>
+  
+                      <div className="p-6">
+                        <div className="mb-2">
+                          <span className="text-[10px] uppercase tracking-wider font-bold text-primary/60">{item.category}</span>
+                          <h4 className="font-bold text-xl group-hover/card:text-primary transition-colors leading-tight">
+                            {item.name}
+                          </h4>
+                        </div>
+  
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-6 min-h-[2.5rem]">
+                          {item.description || "A chef's special preparation using the finest seasonal ingredients."}
+                        </p>
+  
+                        <div className="flex justify-between items-center mt-auto border-t border-border/50 pt-4">
+                          <span className="text-2xl font-bold text-primary">₹{item.price}</span>
+                        </div>
                       </div>
-
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-6 min-h-[2.5rem]">
-                        {item.description || "A chef's special preparation using the finest seasonal ingredients."}
-                      </p>
-
-                      <div className="flex justify-between items-center mt-auto border-t border-border/50 pt-4">
-                        <span className="text-2xl font-bold text-primary">₹{item.price}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
 
               {filteredItems.length === 0 && (
                 <div className="col-span-full py-20 text-center flex flex-col items-center gap-4">

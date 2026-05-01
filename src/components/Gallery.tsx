@@ -137,8 +137,12 @@ const Gallery = () => {
         </div>
 
         {loading && images.length === 0 ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="aspect-square rounded-2xl bg-muted relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite] shadow-[0_0_40px_10px_rgba(255,255,255,0.05)]" />
+              </div>
+            ))}
           </div>
         ) : filtered.length === 0 ? (
           <p className="text-center text-muted-foreground py-20 text-lg">
