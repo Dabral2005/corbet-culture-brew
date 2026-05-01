@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StarRating } from "./StarRating";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useAdmin } from "@/hooks/useAdmin";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Testimonial {
   id: string;
@@ -21,8 +21,17 @@ interface Testimonial {
   created_at: string;
 }
 
+const getInitials = (fullName: string) => {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return fullName.substring(0, 2).toUpperCase();
+};
+
 const AddTestimonialForm = ({ onSuccess }: { onSuccess: () => void }) => {
-  const [name, setName] = useState("");
+  const { user } = useAuth();
+  const [name, setName] = useState(user?.user_metadata?.full_name || "");
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,11 +42,13 @@ const AddTestimonialForm = ({ onSuccess }: { onSuccess: () => void }) => {
     setIsSubmitting(true);
     
     try {
+      const userAvatar = user?.user_metadata?.avatar_url;
       const { error } = await supabase.from("testimonials").insert({
         name,
         review,
         rating: Number(rating),
-        avatar: name.substring(0, 2).toUpperCase() || "U",
+        avatar: userAvatar || getInitials(name),
+        user_id: user?.id,
       });
 
       if (error) throw error;
@@ -106,14 +117,13 @@ const AddTestimonialForm = ({ onSuccess }: { onSuccess: () => void }) => {
 };
 
 const Testimonials = () => {
-  const { user } = useAdmin();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [testimonialList, setTestimonialList] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   const fetchTestimonials = async () => {
     try {
@@ -170,6 +180,9 @@ const Testimonials = () => {
     );
   }
 
+  const currentTestimonial = testimonialList[currentIndex];
+  const isImageAvatar = currentTestimonial?.avatar?.startsWith('http');
+
   return (
     <section id="testimonials" className="py-20 bg-muted/20">
       <div className="container mx-auto px-4">
@@ -188,18 +201,26 @@ const Testimonials = () => {
               <Card className="overflow-hidden animate-fade-in border-primary/10 shadow-xl">
                 <CardContent className="p-8 md:p-12">
                   <div className="flex flex-col items-center text-center">
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary mb-6 shadow-inner">
-                      {testimonialList[currentIndex]?.avatar || "U"}
+                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary mb-6 shadow-inner overflow-hidden border-2 border-primary/20">
+                      {isImageAvatar ? (
+                        <img 
+                          src={currentTestimonial.avatar} 
+                          alt={currentTestimonial.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        getInitials(currentTestimonial?.name || "User")
+                      )}
                     </div>
-                    <StarRating rating={testimonialList[currentIndex]?.rating || 5} size={24} className="mb-6" />
+                    <StarRating rating={currentTestimonial?.rating || 5} size={24} className="mb-6" />
                     <p className="text-xl md:text-2xl text-foreground mb-8 italic leading-relaxed font-serif">
-                      "{testimonialList[currentIndex]?.review}"
+                      "{currentTestimonial?.review}"
                     </p>
                     <p className="font-bold text-xl text-primary">
-                      — {testimonialList[currentIndex]?.name}
+                      — {currentTestimonial?.name}
                     </p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      {new Date(testimonialList[currentIndex]?.created_at).toLocaleDateString()}
+                      {new Date(currentTestimonial?.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </CardContent>

@@ -104,29 +104,29 @@ const Footer = () => {
             <h4 className="font-semibold text-lg mb-4">Connect</h4>
             <div className="flex gap-4">
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/CorbettCultures"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-all duration-300 hover:text-[#1877F2] hover:scale-110"
-                aria-label="Facebook"
+                aria-label="Follow us on Facebook"
               >
                 <Facebook className="w-6 h-6" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/corbettcultures"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-all duration-300 hover:text-[#E4405F] hover:scale-110"
-                aria-label="Instagram"
+                aria-label="Follow us on Instagram"
               >
                 <Instagram className="w-6 h-6" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://twitter.com/CorbettCultures"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-all duration-300 hover:text-[#1DA1F2] hover:scale-110"
-                aria-label="Twitter"
+                aria-label="Follow us on Twitter"
               >
                 <Twitter className="w-6 h-6" />
               </a>
@@ -160,7 +160,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-primary-foreground/20 pt-8 text-center text-primary-foreground/80">
-          <p>&copy; 2025 Corbett Cultures. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Corbett Cultures. All rights reserved.</p>
         </div>
       </div>
 

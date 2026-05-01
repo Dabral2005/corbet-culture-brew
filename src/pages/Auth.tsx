@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Mail } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -114,7 +114,19 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted to-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted to-background px-4 relative">
+      <Button
+        variant="ghost"
+        size="sm"
+        asChild
+        className="absolute top-6 left-6 gap-2 text-muted-foreground hover:text-foreground"
+      >
+        <Link to="/">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+      </Button>
+
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">

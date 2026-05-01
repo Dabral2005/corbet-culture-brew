@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-import { useAdmin } from "@/hooks/useAdmin";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,7 +36,7 @@ interface BookingFormProps {
 const BookingForm = ({ onSuccess }: BookingFormProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const { user } = useAdmin();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof bookingSchema>>({

@@ -16,7 +16,7 @@ const Gallery = () => {
   const fetchImages = async () => {
     try {
       const [remoteRes, overridesRes] = await Promise.all([
-        supabase.from("gallery").select("*").order("display_order", { ascending: true }),
+        supabase.from("gallery").select("*"),
         supabase.from("asset_overrides").select("*")
       ]);
 

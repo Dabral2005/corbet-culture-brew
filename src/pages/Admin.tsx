@@ -14,6 +14,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LOCAL_IMAGES, GalleryImage, Category } from "@/data/galleryData";
 
+const getInitials = (fullName: string) => {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return fullName.substring(0, 2).toUpperCase();
+};
+
+const formatTime12h = (timeStr: string) => {
+  if (!timeStr) return "";
+  try {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const hours12 = hours % 12 || 12;
+    return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+  } catch (e) {
+    return timeStr;
+  }
+};
+
 const Admin = () => {
   const { user, isAdmin, loading: authLoading, signOut } = useAdmin();
   const navigate = useNavigate();
@@ -66,7 +86,7 @@ const Admin = () => {
         supabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
         supabase.from("subscribers").select("*").order("created_at", { ascending: false }),
         supabase.from("testimonials").select("*").order("created_at", { ascending: false }),
-        supabase.from("gallery").select("*").order("display_order", { ascending: true }),
+        supabase.from("gallery").select("*"),
         supabase.from("asset_overrides").select("*"),
       ]);
 
@@ -114,7 +134,18 @@ const Admin = () => {
     try {
       const { error } = await supabase.from("bookings").update({ status: "approved" }).eq("id", id);
       if (error) throw error;
-      toast({ title: "Booking Approved", description: `Notification would be sent to ${email}` });
+
+      // Send actual email notification
+      await fetch(`https://formsubmit.co/ajax/${email}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          _subject: "Reservation Confirmed - Corbett Culture Brew",
+          message: `Namaste ${name},\n\nWe are absolutely delighted to confirm your reservation at Corbett Culture Brew for ${new Date(date).toLocaleDateString()} at ${formatTime12h(time)}.\n\nIt would be our absolute honor to host you and your guests. We look forward to providing you with a warm experience and our finest flavors.\n\nSee you soon!\n\nWarm regards,\nCorbett Culture Brew Team`
+        }),
+      });
+
+      toast({ title: "Booking Approved", description: `Humble confirmation sent to ${email}` });
       fetchData();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -125,7 +156,18 @@ const Admin = () => {
     try {
       const { error } = await supabase.from("bookings").update({ status: "declined" }).eq("id", id);
       if (error) throw error;
-      toast({ title: "Booking Declined", description: `Notification would be sent to ${email}`, variant: "destructive" });
+
+      // Send actual email notification
+      await fetch(`https://formsubmit.co/ajax/${email}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          _subject: "Update regarding your reservation - Corbett Culture Brew",
+          message: `Namaste ${name},\n\nThank you so much for choosing Corbett Culture Brew. We deeply regret to inform you that we are unable to accommodate your reservation for ${new Date(date).toLocaleDateString()} at ${formatTime12h(time)} due to an unexpected surge in bookings.\n\nWe sincerely apologize for any disappointment this may cause. We hope for the opportunity to welcome you another time very soon.\n\nWith humble regards,\nCorbett Culture Brew Team`
+        }),
+      });
+
+      toast({ title: "Booking Declined", description: `Humble apology sent to ${email}`, variant: "destructive" });
       fetchData();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -321,7 +363,7 @@ const Admin = () => {
                             <TableCell className="text-zinc-300">{booking.email}</TableCell>
                             <TableCell className="text-zinc-300">{booking.phone}</TableCell>
                             <TableCell className="text-zinc-300">{new Date(booking.date).toLocaleDateString()}</TableCell>
-                            <TableCell className="text-zinc-300">{booking.time}</TableCell>
+                            <TableCell className="text-zinc-300">{formatTime12h(booking.time)}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">
                                 {booking.status === "approved" ? (
@@ -502,8 +544,12 @@ const Admin = () => {
                         <CardContent className="p-6">
                           <div className="flex justify-between items-start mb-4">
                             <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary border border-primary/20">
-                                {t.avatar || (t.name ? t.name.substring(0, 2).toUpperCase() : "U")}
+                              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary border border-primary/20 overflow-hidden">
+                                {t.avatar?.startsWith('http') ? (
+                                  <img src={t.avatar} alt={t.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  getInitials(t.avatar || t.name || "User")
+                                )}
                               </div>
                               <div>
                                 <h4 className="font-bold text-white group-hover:text-primary transition-colors">{t.name}</h4>

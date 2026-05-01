@@ -8,7 +8,7 @@ import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
-import { useAdmin } from "@/hooks/useAdmin";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +27,7 @@ const Contact = () => {
     email: "",
     message: "",
   });
-  const { user } = useAdmin();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,20 +55,28 @@ const Contact = () => {
 
       if (error) throw error;
 
-      // Send email notification
-      await fetch("https://formsubmit.co/ajax/mohitdabral780@gmail.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          name: validatedData.name,
-          email: validatedData.email,
-          message: validatedData.message,
-          _subject: `New Contact Form Submission from ${validatedData.name}`,
-        }),
-      });
+      // Send email notification (non-blocking, with error handling)
+      try {
+        const emailRes = await fetch("https://formsubmit.co/ajax/mohitdabral780@gmail.com", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            name: validatedData.name,
+            email: validatedData.email,
+            message: validatedData.message,
+            _subject: `New Contact Form Submission from ${validatedData.name}`,
+          }),
+        });
+
+        if (!emailRes.ok) {
+          console.warn("Email notification failed but message was saved.");
+        }
+      } catch (emailErr) {
+        console.warn("Email notification failed:", emailErr);
+      }
 
       toast({
         title: "Message Sent!",

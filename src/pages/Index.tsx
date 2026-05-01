@@ -1,4 +1,3 @@
-import { ThemeProvider } from "next-themes";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Menu from "@/components/Menu";
@@ -10,18 +9,16 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
-      <div className="min-h-screen">
-        <Navbar />
-        <Hero />
-        <Menu />
-        <About />
-        <Gallery />
-        <Testimonials />
-        <Contact />
-        <Footer />
-      </div>
-    </ThemeProvider>
+    <div className="min-h-screen">
+      <Navbar />
+      <Hero />
+      <Menu />
+      <About />
+      <Gallery />
+      <Testimonials />
+      <Contact />
+      <Footer />
+    </div>
   );
 };
 
